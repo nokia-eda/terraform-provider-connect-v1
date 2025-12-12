@@ -22,7 +22,9 @@ description: |-
 
 ### Optional
 
+- `alarms` (Attributes) (see [below for nested schema](#nestedatt--alarms))
 - `api_version` (String)
+- `deviations` (Attributes) (see [below for nested schema](#nestedatt--deviations))
 - `kind` (String)
 - `name` (String) name of the ConnectPluginActionable
 - `namespace` (String) the namespace scope in which to operate
@@ -52,6 +54,25 @@ Required:
 Optional:
 
 - `attributes` (Map of String) Attributes is a map of attributes associated with the Verb for this Actionable.
+
+
+<a id="nestedatt--alarms"></a>
+### Nested Schema for `alarms`
+
+Optional:
+
+- `critical` (Number)
+- `major` (Number)
+- `minor` (Number)
+- `warning` (Number)
+
+
+<a id="nestedatt--deviations"></a>
+### Nested Schema for `deviations`
+
+Optional:
+
+- `count` (Number)
 
 
 <a id="nestedatt--status"></a>

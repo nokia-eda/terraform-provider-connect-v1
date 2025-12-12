@@ -27,7 +27,9 @@ description: |-
 
 ### Read-Only
 
+- `alarms` (Attributes) (see [below for nested schema](#nestedatt--alarms))
 - `api_version` (String)
+- `deviations` (Attributes) (see [below for nested schema](#nestedatt--deviations))
 - `kind` (String)
 - `metadata` (Attributes) (see [below for nested schema](#nestedatt--metadata))
 - `status` (Attributes) ConnectInterfaceStatus defines the observed state of ConnectInterface (see [below for nested schema](#nestedatt--status))
@@ -64,6 +66,25 @@ Optional:
 - `port_id` (String) PortID is the Port Id of the top-of-rack switch to which this compute interface is connected, received through LLDP.
 - `system_name` (String) SystemName is the name of the top-of-rack switch to which this compute interface is connected, received through LLDP.
 
+
+
+<a id="nestedatt--alarms"></a>
+### Nested Schema for `alarms`
+
+Read-Only:
+
+- `critical` (Number)
+- `major` (Number)
+- `minor` (Number)
+- `warning` (Number)
+
+
+<a id="nestedatt--deviations"></a>
+### Nested Schema for `deviations`
+
+Read-Only:
+
+- `count` (Number)
 
 
 <a id="nestedatt--metadata"></a>

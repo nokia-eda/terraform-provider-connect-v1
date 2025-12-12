@@ -15,7 +15,9 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},PATCH,Patch,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},PUT,com.nokia.eda.connect.v1.ConnectAudit,connect_audit,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_revs,GET,ResourceHistory,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_targets,GET,IntentTargets,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_topology,GET,ResourceTopology,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_topology,POST,K8STopologyRequest,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces,DELETE,com.nokia.eda.connect.v1.ConnectInterfaceList,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces,GET,com.nokia.eda.connect.v1.ConnectInterfaceList,connect_interface_list,true,true,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces,POST,com.nokia.eda.connect.v1.ConnectInterface,connect_interface,true,false,true
@@ -25,7 +27,9 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},PATCH,Patch,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},PUT,com.nokia.eda.connect.v1.ConnectInterface,connect_interface,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_revs,GET,ResourceHistory,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_targets,GET,IntentTargets,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_topology,GET,ResourceTopology,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_topology,POST,K8STopologyRequest,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables,DELETE,com.nokia.eda.connect.v1.ConnectPluginActionableList,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables,GET,com.nokia.eda.connect.v1.ConnectPluginActionableList,connect_plugin_actionable_list,true,true,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables,POST,com.nokia.eda.connect.v1.ConnectPluginActionable,connect_plugin_actionable,true,false,true
@@ -35,7 +39,9 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},PATCH,Patch,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},PUT,com.nokia.eda.connect.v1.ConnectPluginActionable,connect_plugin_actionable,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_revs,GET,ResourceHistory,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_targets,GET,IntentTargets,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_topology,GET,ResourceTopology,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_topology,POST,K8STopologyRequest,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins,DELETE,com.nokia.eda.connect.v1.ConnectPluginList,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins,GET,com.nokia.eda.connect.v1.ConnectPluginList,connect_plugin_list,true,true,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins,POST,com.nokia.eda.connect.v1.ConnectPlugin,connect_plugin,true,false,true
@@ -45,4 +51,6 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},PATCH,Patch,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},PUT,com.nokia.eda.connect.v1.ConnectPlugin,connect_plugin,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_revs,GET,ResourceHistory,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_targets,GET,IntentTargets,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_topology,GET,ResourceTopology,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_topology,POST,K8STopologyRequest,,false,false,false

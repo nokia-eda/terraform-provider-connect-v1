@@ -3,6 +3,34 @@ app_group:
       path: /apps/connect.eda.nokia.com
       method: GET
 
+intent_targets:
+  - read:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_targets
+      method: GET
+  - read:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_targets
+      method: GET
+  - read:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_targets
+      method: GET
+  - read:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_targets
+      method: GET
+
+k8_s_topology_request:
+  - create:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_topology
+      method: POST
+  - create:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_topology
+      method: POST
+  - create:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_topology
+      method: POST
+  - create:
+      path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_topology
+      method: POST
+
 patch:
   - update:
       path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}
@@ -177,37 +205,62 @@ com.nokia.eda.connect.v1.connect_plugin_deleted_resources:
       path: /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/_deleted
       method: GET
 
-totalPaths: 27
-totalSchemas: 48
-usedSchemas: 19
-unusedSchemas: 29
+totalPaths: 31
+totalSchemas: 75
+usedSchemas: 21
+unusedSchemas: 54
 unusedSchemaList:
   - AppGroupVersion
   - ErrorIndex
   - ErrorItem
   - ErrorResponse
+  - IntentTarget
   - K8SPatchOp
   - OverlayState
   - Resource
   - ResourceHistoryEntry
   - StatusDetails
   - TopoAttrMetadata
+  - TopoAttribute
+  - TopoBoolExpression
+  - TopoBoolLiteral
   - TopoElemMetadata
-  - TopoLinkEndpoint
+  - TopoEndpointBoolExpression
+  - TopoField
+  - TopoFixedBoolExpression
+  - TopoLabelSelector
+  - TopoLiteralStatusOrBadge
+  - TopoLiteralValue
+  - TopoLogicalExpression
   - TopoNodeGrouping
   - TopoOverlayEndpoint
   - TopoOverlayEndpointState
   - TopoOverlayLink
+  - TopoOverlayLinkGroup
+  - TopoOverlayLinkGroupEndpoint
   - TopoOverlayLinkState
   - TopoOverlayNode
+  - TopoOverlayNodeOrGroup
   - TopoOverlayNodeState
+  - TopoOverlayValue
   - TopoSchema
+  - TopoStateFilter
+  - TopoValue
+  - TopoValueExpression
   - Topology
   - com.nokia.eda.connect.v1.ConnectAudit_DeletedResourceEntry
+  - com.nokia.eda.connect.v1.ConnectAudit_alarms
+  - com.nokia.eda.connect.v1.ConnectAudit_deviations
   - com.nokia.eda.connect.v1.ConnectAudit_metadata
   - com.nokia.eda.connect.v1.ConnectInterface_DeletedResourceEntry
+  - com.nokia.eda.connect.v1.ConnectInterface_alarms
+  - com.nokia.eda.connect.v1.ConnectInterface_deviations
   - com.nokia.eda.connect.v1.ConnectInterface_metadata
   - com.nokia.eda.connect.v1.ConnectPluginActionable_DeletedResourceEntry
+  - com.nokia.eda.connect.v1.ConnectPluginActionable_alarms
+  - com.nokia.eda.connect.v1.ConnectPluginActionable_deviations
   - com.nokia.eda.connect.v1.ConnectPluginActionable_metadata
   - com.nokia.eda.connect.v1.ConnectPlugin_DeletedResourceEntry
+  - com.nokia.eda.connect.v1.ConnectPlugin_alarms
+  - com.nokia.eda.connect.v1.ConnectPlugin_deviations
   - com.nokia.eda.connect.v1.ConnectPlugin_metadata

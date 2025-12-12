@@ -27,7 +27,9 @@ description: |-
 
 ### Read-Only
 
+- `alarms` (Attributes) (see [below for nested schema](#nestedatt--alarms))
 - `api_version` (String)
+- `deviations` (Attributes) (see [below for nested schema](#nestedatt--deviations))
 - `kind` (String)
 - `metadata` (Attributes) (see [below for nested schema](#nestedatt--metadata))
 - `status` (Attributes) ConnectPluginStatus defines the observed state of ConnectPlugin. (see [below for nested schema](#nestedatt--status))
@@ -41,7 +43,27 @@ Optional:
 When the interval is 0, heartbeating will be disabled.
 - `name` (String) Name is a human-readable representation of the Plugin.
 - `plugin_type` (String) PluginType identifies the type of the Plugin. Eg. VMware, OpenStack.
+- `required_plugins` (List of String) A list of ConnectPlugins whose resources this ConnectPlugin will require
 - `supported_actionables` (List of String) SupportedActionables is a List of Actionable identifiers that this Plugin supports.
+
+
+<a id="nestedatt--alarms"></a>
+### Nested Schema for `alarms`
+
+Read-Only:
+
+- `critical` (Number)
+- `major` (Number)
+- `minor` (Number)
+- `warning` (Number)
+
+
+<a id="nestedatt--deviations"></a>
+### Nested Schema for `deviations`
+
+Read-Only:
+
+- `count` (Number)
 
 
 <a id="nestedatt--metadata"></a>

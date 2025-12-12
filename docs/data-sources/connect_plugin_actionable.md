@@ -27,7 +27,9 @@ description: |-
 
 ### Read-Only
 
+- `alarms` (Attributes) (see [below for nested schema](#nestedatt--alarms))
 - `api_version` (String)
+- `deviations` (Attributes) (see [below for nested schema](#nestedatt--deviations))
 - `kind` (String)
 - `metadata` (Attributes) (see [below for nested schema](#nestedatt--metadata))
 - `status` (Attributes) ConnectPluginActionableStatus defines the observed state of ConnectPluginActionable. (see [below for nested schema](#nestedatt--status))
@@ -39,6 +41,25 @@ Optional:
 
 - `attributes` (Map of String) Attributes is a map of attributes associated with the Verb for this Actionable.
 - `verb` (String) Verb is the keyword for the operation that should be executed by the Plugin.
+
+
+<a id="nestedatt--alarms"></a>
+### Nested Schema for `alarms`
+
+Read-Only:
+
+- `critical` (Number)
+- `major` (Number)
+- `minor` (Number)
+- `warning` (Number)
+
+
+<a id="nestedatt--deviations"></a>
+### Nested Schema for `deviations`
+
+Read-Only:
+
+- `count` (Number)
 
 
 <a id="nestedatt--metadata"></a>

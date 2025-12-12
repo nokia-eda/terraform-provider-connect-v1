@@ -22,7 +22,9 @@ description: |-
 
 ### Optional
 
+- `alarms` (Attributes) (see [below for nested schema](#nestedatt--alarms))
 - `api_version` (String)
+- `deviations` (Attributes) (see [below for nested schema](#nestedatt--deviations))
 - `kind` (String)
 - `name` (String) name of the ConnectInterface
 - `namespace` (String) the namespace scope in which to operate
@@ -83,6 +85,25 @@ Optional:
 - `port_id` (String) PortID is the Port Id of the top-of-rack switch to which this compute interface is connected, received through LLDP.
 - `system_name` (String) SystemName is the name of the top-of-rack switch to which this compute interface is connected, received through LLDP.
 
+
+
+<a id="nestedatt--alarms"></a>
+### Nested Schema for `alarms`
+
+Optional:
+
+- `critical` (Number)
+- `major` (Number)
+- `minor` (Number)
+- `warning` (Number)
+
+
+<a id="nestedatt--deviations"></a>
+### Nested Schema for `deviations`
+
+Optional:
+
+- `count` (Number)
 
 
 <a id="nestedatt--status"></a>

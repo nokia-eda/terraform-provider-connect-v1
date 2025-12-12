@@ -57,28 +57,56 @@
         "type": "object"
       },
       "ErrorResponse": {
-        "description": "Generic error response for REST APIs",
         "properties": {
+          "causeCollection": {
+            "description": "A lower-level set of structured errors.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+            "items": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "type": "array"
+          },
+          "causeIndexedCollection": {
+            "description": "A lower-level set of structured errors.\nEach of these errors MUST have index set.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+            "items": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "type": "array"
+          },
+          "causeIsInternal": {
+            "description": "If true, then the cause (`causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection`) should be hidden from the user.",
+            "type": "boolean"
+          },
+          "causeSimple": {
+            "description": "Simple string error type.\n\nOnly oneOf `causeWrapped`, `causeSimple`, `causeCollection`, or `causeIndexedCollection` will ever be set.",
+            "type": "string"
+          },
+          "causeWrapped": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          },
           "code": {
-            "description": "the numeric HTTP error code for the response.",
+            "deprecated": true,
+            "description": "the numeric HTTP error code for the response.\n\nDeprecated: Prefer to check the request's HTTP response code directly.",
             "format": "int64",
             "type": "integer"
           },
           "details": {
-            "description": "The optional details of the error response.",
+            "deprecated": true,
+            "description": "The optional details of the error response.\nDeprecated: Replaced by `causeSimple`.",
             "type": "string"
           },
           "dictionary": {
             "additionalProperties": true,
-            "description": "Dictionary/map of associated data/information relevant to the error.\nThe error \"message\" may contain {{name}} escapes that should be substituted\nwith information from this dictionary.",
+            "deprecated": true,
+            "description": "Dictionary/map of associated data/information relevant to the error.\nThe error \"message\" may contain {{name}} escapes that should be substituted\nwith information from this dictionary.\n\nDeprecated: Use \"values\" instead.",
             "type": "object"
           },
           "domain": {
-            "description": "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"internal\" error code value, or\nto find an internationalization translation for the message.",
+            "description": "The \"domain\" for the error.  If empty, it is an EDA\ncore error.  Alternatively it can be an EDA application\n\"apiVersion\" value (e.g. interfaces.eda.nokia.com/v1alpha1)\nindicating that the error is specific to that application.\nThe domain gives the receiver information that they can use\nto help them interpret the \"type\" field.",
             "type": "string"
           },
           "errors": {
-            "description": "Collection of errors in cases where more than one exists. This needs to be\nflexible so we can support multiple formats",
+            "deprecated": true,
+            "description": "Collection of errors in cases where more than one exists.\nThis needs to be flexible so we can support multiple formats.\nDeprecated: Replaced by `causeCollection` or `causeIndexedCollection` instead.",
             "items": {
               "$ref": "#/components/schemas/ErrorItem"
             },
@@ -88,7 +116,8 @@
             "$ref": "#/components/schemas/ErrorIndex"
           },
           "internal": {
-            "description": "Internal error code in cases where we don't have an array of errors",
+            "deprecated": true,
+            "description": "Internal error code number.\n\nDeprecated: \"type\" \u0026 \"domain\" should be used instead to uniquely identify this error.",
             "format": "int64",
             "type": "integer"
           },
@@ -97,19 +126,45 @@
             "type": "string"
           },
           "ref": {
-            "description": "Reference to the error source. Should typically be the URI of the request",
+            "description": "Reference to the error source. Should typically be the URI of the request.",
             "type": "string"
           },
           "type": {
-            "description": "URI pointing at a document that describes the error and mitigation steps\nIf there is no document, point to the RFC for the HTTP error code",
+            "description": "Type defines a unique identifier for the error, within the domain.\nThis may be used (along with the domain) to find an internationalization translation for the message.\n\nSHOULD be a valid golang identifier, and SHOULD be in UpperCamelCase.",
             "type": "string"
+          },
+          "values": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "description": "Associated data/information.\nThe error \"message\" may contain {{name}} escapes that should be substituted with information from this dictionary.\n\nNote that this map MUST NOT contain JSON objects (`{...}`) or arrays (`[...]`), only simple JSON types are permitted.",
+            "type": "object"
           }
         },
         "required": [
-          "code",
-          "message"
+          "internal",
+          "message",
+          "type"
         ],
+        "title": "Generic error response for REST APIs.",
         "type": "object"
+      },
+      "IntentTarget": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IntentTargets": {
+        "items": {
+          "$ref": "#/components/schemas/IntentTarget"
+        },
+        "type": "array"
       },
       "K8SPatchOp": {
         "properties": {
@@ -135,8 +190,28 @@
         ],
         "type": "object"
       },
+      "K8STopologyRequest": {
+        "properties": {
+          "filter": {
+            "$ref": "#/components/schemas/TopoStateFilter"
+          },
+          "recurse": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "OverlayState": {
         "properties": {
+          "link_groups": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TopoOverlayLinkGroup"
+            },
+            "type": "object"
+          },
           "links": {
             "additionalProperties": {
               "$ref": "#/components/schemas/TopoOverlayLink"
@@ -146,6 +221,12 @@
           "nodes": {
             "additionalProperties": {
               "$ref": "#/components/schemas/TopoOverlayNode"
+            },
+            "type": "object"
+          },
+          "nodes_and_groups": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TopoOverlayNodeOrGroup"
             },
             "type": "object"
           }
@@ -295,6 +376,51 @@
         },
         "type": "object"
       },
+      "TopoAttribute": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoBoolExpression": {
+        "properties": {
+          "endpoint_expression": {
+            "$ref": "#/components/schemas/TopoEndpointBoolExpression"
+          },
+          "fixed_expression": {
+            "$ref": "#/components/schemas/TopoFixedBoolExpression"
+          },
+          "has_badge": {
+            "$ref": "#/components/schemas/TopoLiteralStatusOrBadge"
+          },
+          "label": {
+            "$ref": "#/components/schemas/TopoLabelSelector"
+          },
+          "literal": {
+            "$ref": "#/components/schemas/TopoBoolLiteral"
+          },
+          "logical": {
+            "$ref": "#/components/schemas/TopoLogicalExpression"
+          },
+          "not": {
+            "$ref": "#/components/schemas/TopoBoolExpression"
+          },
+          "value_expression": {
+            "$ref": "#/components/schemas/TopoValueExpression"
+          }
+        },
+        "type": "object"
+      },
+      "TopoBoolLiteral": {
+        "properties": {
+          "value": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "TopoElemMetadata": {
         "properties": {
           "attributes": {
@@ -315,16 +441,87 @@
         },
         "type": "object"
       },
-      "TopoLinkEndpoint": {
+      "TopoEndpointBoolExpression": {
         "properties": {
           "endpoint": {
             "type": "string"
           },
-          "node": {
+          "expression": {
+            "$ref": "#/components/schemas/TopoBoolExpression"
+          }
+        },
+        "type": "object"
+      },
+      "TopoField": {
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoFixedBoolExpression": {
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoLabelSelector": {
+        "properties": {
+          "selector": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "TopoLiteralStatusOrBadge": {
+        "properties": {
+          "overlay": {
             "type": "string"
           },
-          "node_key": {
+          "value": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "TopoLiteralValue": {
+        "properties": {
+          "badge": {
+            "$ref": "#/components/schemas/TopoLiteralStatusOrBadge"
+          },
+          "bool": {
+            "type": "boolean"
+          },
+          "number": {
+            "format": "double",
+            "type": "number"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TopoLiteralStatusOrBadge"
+          },
+          "string": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoLogicalExpression": {
+        "properties": {
+          "left": {
+            "$ref": "#/components/schemas/TopoBoolExpression"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "right": {
+            "$ref": "#/components/schemas/TopoBoolExpression"
           }
         },
         "type": "object"
@@ -332,6 +529,9 @@
       "TopoNodeGrouping": {
         "properties": {
           "group": {
+            "type": "string"
+          },
+          "group_key": {
             "type": "string"
           },
           "tier": {
@@ -364,6 +564,12 @@
           "namespace": {
             "type": "string"
           },
+          "node": {
+            "type": "string"
+          },
+          "node_key": {
+            "type": "string"
+          },
           "overlays": {
             "additionalProperties": {
               "$ref": "#/components/schemas/TopoOverlayEndpointState"
@@ -372,10 +578,6 @@
           },
           "schema": {
             "$ref": "#/components/schemas/TopoSchema"
-          },
-          "state": {
-            "format": "int64",
-            "type": "integer"
           },
           "ui_name": {
             "type": "string"
@@ -404,16 +606,19 @@
             "type": "string"
           },
           "endpoint_a": {
-            "$ref": "#/components/schemas/TopoLinkEndpoint"
-          },
-          "endpoint_a_details": {
             "$ref": "#/components/schemas/TopoOverlayEndpoint"
+          },
+          "endpoint_a_name": {
+            "type": "string"
           },
           "endpoint_b": {
-            "$ref": "#/components/schemas/TopoLinkEndpoint"
-          },
-          "endpoint_b_details": {
             "$ref": "#/components/schemas/TopoOverlayEndpoint"
+          },
+          "endpoint_b_name": {
+            "type": "string"
+          },
+          "group_key": {
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -439,11 +644,38 @@
           "schema": {
             "$ref": "#/components/schemas/TopoSchema"
           },
-          "state": {
-            "format": "int64",
-            "type": "integer"
-          },
           "ui_name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoOverlayLinkGroup": {
+        "properties": {
+          "endpoint_a": {
+            "$ref": "#/components/schemas/TopoOverlayLinkGroupEndpoint"
+          },
+          "endpoint_b": {
+            "$ref": "#/components/schemas/TopoOverlayLinkGroupEndpoint"
+          },
+          "key": {
+            "type": "string"
+          },
+          "overlays": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TopoOverlayLinkState"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "TopoOverlayLinkGroupEndpoint": {
+        "properties": {
+          "group_key": {
+            "type": "string"
+          },
+          "node_key": {
             "type": "string"
           }
         },
@@ -465,13 +697,6 @@
               "type": "object"
             },
             "type": "object"
-          },
-          "badges": {
-            "items": {
-              "format": "int64",
-              "type": "integer"
-            },
-            "type": "array"
           },
           "cr_name": {
             "type": "string"
@@ -503,9 +728,56 @@
           "schema": {
             "$ref": "#/components/schemas/TopoSchema"
           },
-          "state": {
+          "ui_name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoOverlayNodeOrGroup": {
+        "properties": {
+          "attributes": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "cr_name": {
+            "type": "string"
+          },
+          "grouping": {
+            "$ref": "#/components/schemas/TopoNodeGrouping"
+          },
+          "key": {
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "num_nodes": {
             "format": "int64",
             "type": "integer"
+          },
+          "overlays": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TopoOverlayNodeState"
+            },
+            "type": "object"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/TopoSchema"
+          },
+          "type": {
+            "type": "string"
           },
           "ui_name": {
             "type": "string"
@@ -529,6 +801,14 @@
         },
         "type": "object"
       },
+      "TopoOverlayValue": {
+        "properties": {
+          "overlay": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TopoSchema": {
         "properties": {
           "group": {
@@ -539,6 +819,69 @@
           },
           "version": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TopoStateFilter": {
+        "properties": {
+          "expand_all_link_groups": {
+            "type": "boolean"
+          },
+          "expand_all_node_groups": {
+            "type": "boolean"
+          },
+          "expanded_link_groups": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "expanded_node_groups": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "link_filter": {
+            "$ref": "#/components/schemas/TopoBoolExpression"
+          },
+          "node_filter": {
+            "$ref": "#/components/schemas/TopoBoolExpression"
+          }
+        },
+        "type": "object"
+      },
+      "TopoValue": {
+        "properties": {
+          "attribute": {
+            "$ref": "#/components/schemas/TopoAttribute"
+          },
+          "badge": {
+            "$ref": "#/components/schemas/TopoOverlayValue"
+          },
+          "field": {
+            "$ref": "#/components/schemas/TopoField"
+          },
+          "literal": {
+            "$ref": "#/components/schemas/TopoLiteralValue"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TopoOverlayValue"
+          }
+        },
+        "type": "object"
+      },
+      "TopoValueExpression": {
+        "properties": {
+          "left": {
+            "$ref": "#/components/schemas/TopoValue"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "right": {
+            "$ref": "#/components/schemas/TopoValue"
           }
         },
         "type": "object"
@@ -587,6 +930,9 @@
       "com.nokia.eda.connect.v1.ConnectAudit": {
         "description": "ConnectAudit is the Schema for the connectaudits API",
         "properties": {
+          "alarms": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit_alarms"
+          },
           "apiVersion": {
             "default": "connect.eda.nokia.com/v1",
             "pattern": "^connect\\.eda\\.nokia\\.com/v1$",
@@ -595,6 +941,9 @@
               "ui-pattern-error": "The apiVersion must be set to connect.eda.nokia.com/v1",
               "ui-visible-if": "false"
             }
+          },
+          "deviations": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit_deviations"
           },
           "kind": {
             "default": "ConnectAudit",
@@ -636,7 +985,10 @@
               "scope"
             ],
             "title": "Specification",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 30
+            }
           },
           "status": {
             "description": "ConnectAuditStatus defines the observed state of ConnectAudit.",
@@ -764,7 +1116,10 @@
             },
             "readOnly": true,
             "title": "Status",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 20
+            }
           }
         },
         "required": [
@@ -850,6 +1205,73 @@
         },
         "type": "array"
       },
+      "com.nokia.eda.connect.v1.ConnectAudit_alarms": {
+        "properties": {
+          "critical": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Critical",
+              "ui-title-key": "alarm_severities.critical"
+            }
+          },
+          "major": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Major",
+              "ui-title-key": "alarm_severities.major"
+            }
+          },
+          "minor": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "minor",
+              "ui-title-key": "alarm_severities.minor"
+            }
+          },
+          "warning": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Warning",
+              "ui-title-key": "alarm_severities.warning"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 40,
+          "ui-title": "Alarms",
+          "ui-title-key": "alarms"
+        }
+      },
+      "com.nokia.eda.connect.v1.ConnectAudit_deviations": {
+        "properties": {
+          "count": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Count",
+              "ui-title-key": "count_column"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 25,
+          "ui-title": "Deviations",
+          "ui-title-key": "deviations"
+        }
+      },
       "com.nokia.eda.connect.v1.ConnectAudit_metadata": {
         "properties": {
           "annotations": {
@@ -919,6 +1341,9 @@
       "com.nokia.eda.connect.v1.ConnectInterface": {
         "description": "ConnectInterface is the Schema for the connectinterfaces API",
         "properties": {
+          "alarms": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface_alarms"
+          },
           "apiVersion": {
             "default": "connect.eda.nokia.com/v1",
             "pattern": "^connect\\.eda\\.nokia\\.com/v1$",
@@ -927,6 +1352,9 @@
               "ui-pattern-error": "The apiVersion must be set to connect.eda.nokia.com/v1",
               "ui-visible-if": "false"
             }
+          },
+          "deviations": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface_deviations"
           },
           "kind": {
             "default": "ConnectInterface",
@@ -1023,7 +1451,10 @@
               "members"
             ],
             "title": "Specification",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 30
+            }
           },
           "status": {
             "description": "ConnectInterfaceStatus defines the observed state of ConnectInterface",
@@ -1041,7 +1472,10 @@
             },
             "readOnly": true,
             "title": "Status",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 20
+            }
           }
         },
         "required": [
@@ -1127,6 +1561,73 @@
         },
         "type": "array"
       },
+      "com.nokia.eda.connect.v1.ConnectInterface_alarms": {
+        "properties": {
+          "critical": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Critical",
+              "ui-title-key": "alarm_severities.critical"
+            }
+          },
+          "major": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Major",
+              "ui-title-key": "alarm_severities.major"
+            }
+          },
+          "minor": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "minor",
+              "ui-title-key": "alarm_severities.minor"
+            }
+          },
+          "warning": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Warning",
+              "ui-title-key": "alarm_severities.warning"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 40,
+          "ui-title": "Alarms",
+          "ui-title-key": "alarms"
+        }
+      },
+      "com.nokia.eda.connect.v1.ConnectInterface_deviations": {
+        "properties": {
+          "count": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Count",
+              "ui-title-key": "count_column"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 25,
+          "ui-title": "Deviations",
+          "ui-title-key": "deviations"
+        }
+      },
       "com.nokia.eda.connect.v1.ConnectInterface_metadata": {
         "properties": {
           "annotations": {
@@ -1196,6 +1697,9 @@
       "com.nokia.eda.connect.v1.ConnectPlugin": {
         "description": "ConnectPlugin is the Schema for the connectplugins API",
         "properties": {
+          "alarms": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin_alarms"
+          },
           "apiVersion": {
             "default": "connect.eda.nokia.com/v1",
             "pattern": "^connect\\.eda\\.nokia\\.com/v1$",
@@ -1204,6 +1708,9 @@
               "ui-pattern-error": "The apiVersion must be set to connect.eda.nokia.com/v1",
               "ui-visible-if": "false"
             }
+          },
+          "deviations": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin_deviations"
           },
           "kind": {
             "default": "ConnectPlugin",
@@ -1235,6 +1742,25 @@
                 "title": "Plugin Type",
                 "type": "string"
               },
+              "requiredPlugins": {
+                "description": "A list of ConnectPlugins whose resources this ConnectPlugin will require",
+                "items": {
+                  "type": "string"
+                },
+                "title": "Required Plugins",
+                "type": "array",
+                "x-eda-nokia-com": {
+                  "ui-auto-completes": [
+                    {
+                      "condition": "true",
+                      "group": "connect.eda.nokia.com",
+                      "resource": "connectplugins",
+                      "type": "gvr",
+                      "version": "v1"
+                    }
+                  ]
+                }
+              },
               "supportedActionables": {
                 "description": "SupportedActionables is a List of Actionable identifiers that this Plugin supports.",
                 "items": {
@@ -1249,7 +1775,10 @@
               "pluginType"
             ],
             "title": "Specification",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 30
+            }
           },
           "status": {
             "description": "ConnectPluginStatus defines the observed state of ConnectPlugin.",
@@ -1262,7 +1791,10 @@
             },
             "readOnly": true,
             "title": "Status",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 20
+            }
           }
         },
         "required": [
@@ -1276,6 +1808,9 @@
       "com.nokia.eda.connect.v1.ConnectPluginActionable": {
         "description": "ConnectPluginActionable is the Schema for the connectpluginactionables API",
         "properties": {
+          "alarms": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable_alarms"
+          },
           "apiVersion": {
             "default": "connect.eda.nokia.com/v1",
             "pattern": "^connect\\.eda\\.nokia\\.com/v1$",
@@ -1284,6 +1819,9 @@
               "ui-pattern-error": "The apiVersion must be set to connect.eda.nokia.com/v1",
               "ui-visible-if": "false"
             }
+          },
+          "deviations": {
+            "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable_deviations"
           },
           "kind": {
             "default": "ConnectPluginActionable",
@@ -1316,13 +1854,19 @@
               "verb"
             ],
             "title": "Specification",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 30
+            }
           },
           "status": {
             "description": "ConnectPluginActionableStatus defines the observed state of ConnectPluginActionable.",
             "readOnly": true,
             "title": "Status",
-            "type": "object"
+            "type": "object",
+            "x-eda-nokia-com": {
+              "ui-order-priority": 20
+            }
           }
         },
         "required": [
@@ -1407,6 +1951,73 @@
           "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable_DeletedResourceEntry"
         },
         "type": "array"
+      },
+      "com.nokia.eda.connect.v1.ConnectPluginActionable_alarms": {
+        "properties": {
+          "critical": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Critical",
+              "ui-title-key": "alarm_severities.critical"
+            }
+          },
+          "major": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Major",
+              "ui-title-key": "alarm_severities.major"
+            }
+          },
+          "minor": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "minor",
+              "ui-title-key": "alarm_severities.minor"
+            }
+          },
+          "warning": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Warning",
+              "ui-title-key": "alarm_severities.warning"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 40,
+          "ui-title": "Alarms",
+          "ui-title-key": "alarms"
+        }
+      },
+      "com.nokia.eda.connect.v1.ConnectPluginActionable_deviations": {
+        "properties": {
+          "count": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Count",
+              "ui-title-key": "count_column"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 25,
+          "ui-title": "Deviations",
+          "ui-title-key": "deviations"
+        }
       },
       "com.nokia.eda.connect.v1.ConnectPluginActionable_metadata": {
         "properties": {
@@ -1549,6 +2160,73 @@
         },
         "type": "array"
       },
+      "com.nokia.eda.connect.v1.ConnectPlugin_alarms": {
+        "properties": {
+          "critical": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Critical",
+              "ui-title-key": "alarm_severities.critical"
+            }
+          },
+          "major": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Major",
+              "ui-title-key": "alarm_severities.major"
+            }
+          },
+          "minor": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "minor",
+              "ui-title-key": "alarm_severities.minor"
+            }
+          },
+          "warning": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Warning",
+              "ui-title-key": "alarm_severities.warning"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 40,
+          "ui-title": "Alarms",
+          "ui-title-key": "alarms"
+        }
+      },
+      "com.nokia.eda.connect.v1.ConnectPlugin_deviations": {
+        "properties": {
+          "count": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "x-eda-nokia-com": {
+              "ui-title": "Count",
+              "ui-title-key": "count_column"
+            }
+          }
+        },
+        "readOnly": true,
+        "type": "object",
+        "x-eda-nokia-com": {
+          "ui-order-priority": 25,
+          "ui-title": "Deviations",
+          "ui-title-key": "deviations"
+        }
+      },
       "com.nokia.eda.connect.v1.ConnectPlugin_metadata": {
         "properties": {
           "annotations": {
@@ -1641,6 +2319,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/AppGroup"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppGroup"
+                }
               }
             },
             "description": "OK"
@@ -1669,6 +2352,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/ResourceList"
                 }
@@ -1711,6 +2399,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UIResult"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/UIResult"
                 }
@@ -1774,6 +2467,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -1784,6 +2486,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAuditList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAuditList"
                 }
@@ -1848,6 +2555,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -1858,6 +2574,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterfaceList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterfaceList"
                 }
@@ -1922,6 +2643,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -1932,6 +2662,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionableList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionableList"
                 }
@@ -1996,6 +2731,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -2006,6 +2750,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginList"
                 }
@@ -2035,18 +2784,49 @@
         "operationId": "deleteAllConnectEdaNokiaComV1NamespaceConnectaudits",
         "parameters": [
           {
-            "description": "the namespace scope from which to perform the delete",
-            "in": "path",
-            "name": "namespace",
-            "required": true,
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
             "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
               "type": "string"
             }
           },
           {
             "description": "a label selector string to filter the set of CRs deleted based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the set of CRs deleted based on CR labels",
+            "in": "query",
             "name": "label-selector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "the namespace scope from which to perform the delete",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -2056,6 +2836,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAuditList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAuditList"
                 }
@@ -2118,6 +2903,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -2137,6 +2931,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAuditList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAuditList"
                 }
@@ -2165,6 +2964,28 @@
         "operationId": "createConnectEdaNokiaComV1NamespaceConnectaudits",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "in": "path",
             "name": "namespace",
             "required": true,
@@ -2187,6 +3008,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
                 }
@@ -2247,6 +3073,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit_DeletedResources"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit_DeletedResources"
+                }
               }
             },
             "description": "Returns list of deleted resource entries"
@@ -2274,6 +3105,28 @@
         "operationId": "deleteConnectEdaNokiaComV1NamespaceConnectaudits",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "the namespace scope from which to perform the delete",
             "in": "path",
             "name": "namespace",
@@ -2296,6 +3149,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/Status"
                 }
@@ -2372,6 +3230,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
+                }
               }
             },
             "description": "OK"
@@ -2395,6 +3258,28 @@
         "description": "patch a ConnectAudit",
         "operationId": "patchConnectEdaNokiaComV1NamespaceConnectaudits",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -2429,6 +3314,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
+                }
               }
             },
             "description": "OK"
@@ -2452,6 +3342,28 @@
         "description": "replace a ConnectAudit",
         "operationId": "replaceConnectEdaNokiaComV1NamespaceConnectaudits",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -2483,6 +3395,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectAudit"
                 }
@@ -2562,6 +3479,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceHistory"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceHistory"
+                }
               }
             },
             "description": "Returns the change history of the specified resource"
@@ -2583,8 +3505,82 @@
         ]
       }
     },
+    "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_targets": {
+      "get": {
+        "operationId": "getTargetsConnectEdaNokiaComV1NamespaceConnectaudits",
+        "parameters": [
+          {
+            "description": "name of the ConnectAudit",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope in which to operate",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              }
+            },
+            "description": "Returns the list of intent targets for the specified ConnectAudit resource."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get intent targets for the specified namespaced ConnectAudit.",
+        "tags": [
+          "apps"
+        ]
+      }
+    },
     "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_topology": {
       "get": {
+        "deprecated": true,
+        "description": "Get the topology for the specified namespaced ConnectAudit.  This API is deprecated and the POST\nAPI should be used instead.",
         "operationId": "getTopologyConnectEdaNokiaComV1NamespaceConnectaudits",
         "parameters": [
           {
@@ -2653,6 +3649,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceTopology"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
               }
             },
             "description": "Returns the topology of the specified resource"
@@ -2668,7 +3669,87 @@
             "description": "Details of an error in response to an API REST request."
           }
         },
-        "summary": "Get the topology for the specified namespaced ConnectAudit.",
+        "tags": [
+          "apps"
+        ]
+      },
+      "post": {
+        "operationId": "postTopologyConnectEdaNokiaComV1NamespaceConnectaudits",
+        "parameters": [
+          {
+            "description": "name of the ConnectAudit to retrieve",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope from which to retrieve the result",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/K8STopologyRequest"
+              }
+            }
+          },
+          "description": "the details of topology to retrieve",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              }
+            },
+            "description": "Returns the topology of the specified resource"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Retrieve the topology for the specified namespaced ConnectAudit.",
         "tags": [
           "apps"
         ]
@@ -2679,18 +3760,49 @@
         "operationId": "deleteAllConnectEdaNokiaComV1NamespaceConnectinterfaces",
         "parameters": [
           {
-            "description": "the namespace scope from which to perform the delete",
-            "in": "path",
-            "name": "namespace",
-            "required": true,
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
             "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
               "type": "string"
             }
           },
           {
             "description": "a label selector string to filter the set of CRs deleted based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the set of CRs deleted based on CR labels",
+            "in": "query",
             "name": "label-selector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "the namespace scope from which to perform the delete",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -2700,6 +3812,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterfaceList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterfaceList"
                 }
@@ -2762,6 +3879,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -2781,6 +3907,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterfaceList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterfaceList"
                 }
@@ -2809,6 +3940,28 @@
         "operationId": "createConnectEdaNokiaComV1NamespaceConnectinterfaces",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "in": "path",
             "name": "namespace",
             "required": true,
@@ -2831,6 +3984,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
                 }
@@ -2891,6 +4049,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface_DeletedResources"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface_DeletedResources"
+                }
               }
             },
             "description": "Returns list of deleted resource entries"
@@ -2918,6 +4081,28 @@
         "operationId": "deleteConnectEdaNokiaComV1NamespaceConnectinterfaces",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "the namespace scope from which to perform the delete",
             "in": "path",
             "name": "namespace",
@@ -2940,6 +4125,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/Status"
                 }
@@ -3016,6 +4206,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
+                }
               }
             },
             "description": "OK"
@@ -3039,6 +4234,28 @@
         "description": "patch a ConnectInterface",
         "operationId": "patchConnectEdaNokiaComV1NamespaceConnectinterfaces",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -3073,6 +4290,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
+                }
               }
             },
             "description": "OK"
@@ -3096,6 +4318,28 @@
         "description": "replace a ConnectInterface",
         "operationId": "replaceConnectEdaNokiaComV1NamespaceConnectinterfaces",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -3127,6 +4371,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectInterface"
                 }
@@ -3206,6 +4455,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceHistory"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceHistory"
+                }
               }
             },
             "description": "Returns the change history of the specified resource"
@@ -3227,8 +4481,82 @@
         ]
       }
     },
+    "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_targets": {
+      "get": {
+        "operationId": "getTargetsConnectEdaNokiaComV1NamespaceConnectinterfaces",
+        "parameters": [
+          {
+            "description": "name of the ConnectInterface",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope in which to operate",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              }
+            },
+            "description": "Returns the list of intent targets for the specified ConnectInterface resource."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get intent targets for the specified namespaced ConnectInterface.",
+        "tags": [
+          "apps"
+        ]
+      }
+    },
     "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_topology": {
       "get": {
+        "deprecated": true,
+        "description": "Get the topology for the specified namespaced ConnectInterface.  This API is deprecated and the POST\nAPI should be used instead.",
         "operationId": "getTopologyConnectEdaNokiaComV1NamespaceConnectinterfaces",
         "parameters": [
           {
@@ -3297,6 +4625,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceTopology"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
               }
             },
             "description": "Returns the topology of the specified resource"
@@ -3312,7 +4645,87 @@
             "description": "Details of an error in response to an API REST request."
           }
         },
-        "summary": "Get the topology for the specified namespaced ConnectInterface.",
+        "tags": [
+          "apps"
+        ]
+      },
+      "post": {
+        "operationId": "postTopologyConnectEdaNokiaComV1NamespaceConnectinterfaces",
+        "parameters": [
+          {
+            "description": "name of the ConnectInterface to retrieve",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope from which to retrieve the result",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/K8STopologyRequest"
+              }
+            }
+          },
+          "description": "the details of topology to retrieve",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              }
+            },
+            "description": "Returns the topology of the specified resource"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Retrieve the topology for the specified namespaced ConnectInterface.",
         "tags": [
           "apps"
         ]
@@ -3323,18 +4736,49 @@
         "operationId": "deleteAllConnectEdaNokiaComV1NamespaceConnectpluginactionables",
         "parameters": [
           {
-            "description": "the namespace scope from which to perform the delete",
-            "in": "path",
-            "name": "namespace",
-            "required": true,
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
             "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
               "type": "string"
             }
           },
           {
             "description": "a label selector string to filter the set of CRs deleted based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the set of CRs deleted based on CR labels",
+            "in": "query",
             "name": "label-selector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "the namespace scope from which to perform the delete",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -3344,6 +4788,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionableList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionableList"
                 }
@@ -3406,6 +4855,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -3425,6 +4883,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionableList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionableList"
                 }
@@ -3453,6 +4916,28 @@
         "operationId": "createConnectEdaNokiaComV1NamespaceConnectpluginactionables",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "in": "path",
             "name": "namespace",
             "required": true,
@@ -3475,6 +4960,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
                 }
@@ -3535,6 +5025,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable_DeletedResources"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable_DeletedResources"
+                }
               }
             },
             "description": "Returns list of deleted resource entries"
@@ -3562,6 +5057,28 @@
         "operationId": "deleteConnectEdaNokiaComV1NamespaceConnectpluginactionables",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "the namespace scope from which to perform the delete",
             "in": "path",
             "name": "namespace",
@@ -3584,6 +5101,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/Status"
                 }
@@ -3660,6 +5182,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
+                }
               }
             },
             "description": "OK"
@@ -3683,6 +5210,28 @@
         "description": "patch a ConnectPluginActionable",
         "operationId": "patchConnectEdaNokiaComV1NamespaceConnectpluginactionables",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -3717,6 +5266,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
+                }
               }
             },
             "description": "OK"
@@ -3740,6 +5294,28 @@
         "description": "replace a ConnectPluginActionable",
         "operationId": "replaceConnectEdaNokiaComV1NamespaceConnectpluginactionables",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -3771,6 +5347,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginActionable"
                 }
@@ -3850,6 +5431,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceHistory"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceHistory"
+                }
               }
             },
             "description": "Returns the change history of the specified resource"
@@ -3871,8 +5457,82 @@
         ]
       }
     },
+    "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_targets": {
+      "get": {
+        "operationId": "getTargetsConnectEdaNokiaComV1NamespaceConnectpluginactionables",
+        "parameters": [
+          {
+            "description": "name of the ConnectPluginActionable",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope in which to operate",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              }
+            },
+            "description": "Returns the list of intent targets for the specified ConnectPluginActionable resource."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get intent targets for the specified namespaced ConnectPluginActionable.",
+        "tags": [
+          "apps"
+        ]
+      }
+    },
     "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_topology": {
       "get": {
+        "deprecated": true,
+        "description": "Get the topology for the specified namespaced ConnectPluginActionable.  This API is deprecated and the POST\nAPI should be used instead.",
         "operationId": "getTopologyConnectEdaNokiaComV1NamespaceConnectpluginactionables",
         "parameters": [
           {
@@ -3941,6 +5601,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceTopology"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
               }
             },
             "description": "Returns the topology of the specified resource"
@@ -3956,7 +5621,87 @@
             "description": "Details of an error in response to an API REST request."
           }
         },
-        "summary": "Get the topology for the specified namespaced ConnectPluginActionable.",
+        "tags": [
+          "apps"
+        ]
+      },
+      "post": {
+        "operationId": "postTopologyConnectEdaNokiaComV1NamespaceConnectpluginactionables",
+        "parameters": [
+          {
+            "description": "name of the ConnectPluginActionable to retrieve",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope from which to retrieve the result",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/K8STopologyRequest"
+              }
+            }
+          },
+          "description": "the details of topology to retrieve",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              }
+            },
+            "description": "Returns the topology of the specified resource"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Retrieve the topology for the specified namespaced ConnectPluginActionable.",
         "tags": [
           "apps"
         ]
@@ -3967,18 +5712,49 @@
         "operationId": "deleteAllConnectEdaNokiaComV1NamespaceConnectplugins",
         "parameters": [
           {
-            "description": "the namespace scope from which to perform the delete",
-            "in": "path",
-            "name": "namespace",
-            "required": true,
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
             "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
               "type": "string"
             }
           },
           {
             "description": "a label selector string to filter the set of CRs deleted based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the set of CRs deleted based on CR labels",
+            "in": "query",
             "name": "label-selector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "the namespace scope from which to perform the delete",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -3988,6 +5764,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginList"
                 }
@@ -4050,6 +5831,15 @@
           {
             "description": "a label selector string to filter the results based on CR labels",
             "in": "query",
+            "name": "labelSelector",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "deprecated": true,
+            "description": "Deprecated: a label selector string to filter the results based on CR labels",
+            "in": "query",
             "name": "label-selector",
             "schema": {
               "type": "string"
@@ -4069,6 +5859,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginList"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPluginList"
                 }
@@ -4097,6 +5892,28 @@
         "operationId": "createConnectEdaNokiaComV1NamespaceConnectplugins",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "in": "path",
             "name": "namespace",
             "required": true,
@@ -4119,6 +5936,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
                 }
@@ -4179,6 +6001,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin_DeletedResources"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin_DeletedResources"
+                }
               }
             },
             "description": "Returns list of deleted resource entries"
@@ -4206,6 +6033,28 @@
         "operationId": "deleteConnectEdaNokiaComV1NamespaceConnectplugins",
         "parameters": [
           {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
             "description": "the namespace scope from which to perform the delete",
             "in": "path",
             "name": "namespace",
@@ -4228,6 +6077,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/Status"
                 }
@@ -4304,6 +6158,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
+                }
               }
             },
             "description": "OK"
@@ -4327,6 +6186,28 @@
         "description": "patch a ConnectPlugin",
         "operationId": "patchConnectEdaNokiaComV1NamespaceConnectplugins",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -4361,6 +6242,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
+                }
               }
             },
             "description": "OK"
@@ -4384,6 +6270,28 @@
         "description": "replace a ConnectPlugin",
         "operationId": "replaceConnectEdaNokiaComV1NamespaceConnectplugins",
         "parameters": [
+          {
+            "description": "The detail level to keep in the transaction log for the transaction resulting from this request.",
+            "in": "query",
+            "name": "detailLevel",
+            "schema": {
+              "default": "standard",
+              "enum": [
+                "standard",
+                "detailed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If true, prevents the transaction resulting from this request from being bundled with others.",
+            "in": "query",
+            "name": "disableBatching",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
           {
             "in": "path",
             "name": "namespace",
@@ -4415,6 +6323,11 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
+                }
+              },
+              "application/yaml": {
                 "schema": {
                   "$ref": "#/components/schemas/com.nokia.eda.connect.v1.ConnectPlugin"
                 }
@@ -4494,6 +6407,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceHistory"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceHistory"
+                }
               }
             },
             "description": "Returns the change history of the specified resource"
@@ -4515,8 +6433,82 @@
         ]
       }
     },
+    "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_targets": {
+      "get": {
+        "operationId": "getTargetsConnectEdaNokiaComV1NamespaceConnectplugins",
+        "parameters": [
+          {
+            "description": "name of the ConnectPlugin",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope in which to operate",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentTargets"
+                }
+              }
+            },
+            "description": "Returns the list of intent targets for the specified ConnectPlugin resource."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Get intent targets for the specified namespaced ConnectPlugin.",
+        "tags": [
+          "apps"
+        ]
+      }
+    },
     "/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_topology": {
       "get": {
+        "deprecated": true,
+        "description": "Get the topology for the specified namespaced ConnectPlugin.  This API is deprecated and the POST\nAPI should be used instead.",
         "operationId": "getTopologyConnectEdaNokiaComV1NamespaceConnectplugins",
         "parameters": [
           {
@@ -4585,6 +6577,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResourceTopology"
                 }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
               }
             },
             "description": "Returns the topology of the specified resource"
@@ -4600,7 +6597,87 @@
             "description": "Details of an error in response to an API REST request."
           }
         },
-        "summary": "Get the topology for the specified namespaced ConnectPlugin.",
+        "tags": [
+          "apps"
+        ]
+      },
+      "post": {
+        "operationId": "postTopologyConnectEdaNokiaComV1NamespaceConnectplugins",
+        "parameters": [
+          {
+            "description": "name of the ConnectPlugin to retrieve",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "the namespace scope from which to retrieve the result",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "client information for streaming request",
+            "in": "query",
+            "name": "eventclient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "stream information for streaming request",
+            "in": "query",
+            "name": "stream",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/K8STopologyRequest"
+              }
+            }
+          },
+          "description": "the details of topology to retrieve",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTopology"
+                }
+              }
+            },
+            "description": "Returns the topology of the specified resource"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Details of an error in response to an API REST request."
+          }
+        },
+        "summary": "Retrieve the topology for the specified namespaced ConnectPlugin.",
         "tags": [
           "apps"
         ]
