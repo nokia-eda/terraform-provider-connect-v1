@@ -12,7 +12,7 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/_deleted,GET,com.nokia.eda.connect.v1.ConnectAudit_DeletedResources,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},DELETE,Status,connect_audit,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},GET,com.nokia.eda.connect.v1.ConnectAudit,connect_audit,true,true,true
-/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},PATCH,Patch,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},PATCH,com.nokia.eda.connect.v1.ConnectAudit,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name},PUT,com.nokia.eda.connect.v1.ConnectAudit,connect_audit,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_revs,GET,ResourceHistory,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectaudits/{name}/_targets,GET,IntentTargets,,false,false,false
@@ -24,7 +24,7 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/_deleted,GET,com.nokia.eda.connect.v1.ConnectInterface_DeletedResources,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},DELETE,Status,connect_interface,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},GET,com.nokia.eda.connect.v1.ConnectInterface,connect_interface,true,true,true
-/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},PATCH,Patch,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},PATCH,com.nokia.eda.connect.v1.ConnectInterface,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name},PUT,com.nokia.eda.connect.v1.ConnectInterface,connect_interface,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_revs,GET,ResourceHistory,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectinterfaces/{name}/_targets,GET,IntentTargets,,false,false,false
@@ -36,7 +36,7 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/_deleted,GET,com.nokia.eda.connect.v1.ConnectPluginActionable_DeletedResources,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},DELETE,Status,connect_plugin_actionable,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},GET,com.nokia.eda.connect.v1.ConnectPluginActionable,connect_plugin_actionable,true,true,true
-/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},PATCH,Patch,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},PATCH,com.nokia.eda.connect.v1.ConnectPluginActionable,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name},PUT,com.nokia.eda.connect.v1.ConnectPluginActionable,connect_plugin_actionable,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_revs,GET,ResourceHistory,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectpluginactionables/{name}/_targets,GET,IntentTargets,,false,false,false
@@ -48,7 +48,7 @@ Path,Method,Schema,Model Name,Supported,Datasource,Resource
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/_deleted,GET,com.nokia.eda.connect.v1.ConnectPlugin_DeletedResources,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},DELETE,Status,connect_plugin,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},GET,com.nokia.eda.connect.v1.ConnectPlugin,connect_plugin,true,true,true
-/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},PATCH,Patch,,false,false,false
+/apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},PATCH,com.nokia.eda.connect.v1.ConnectPlugin,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name},PUT,com.nokia.eda.connect.v1.ConnectPlugin,connect_plugin,true,false,true
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_revs,GET,ResourceHistory,,false,false,false
 /apps/connect.eda.nokia.com/v1/namespaces/{namespace}/connectplugins/{name}/_targets,GET,IntentTargets,,false,false,false
